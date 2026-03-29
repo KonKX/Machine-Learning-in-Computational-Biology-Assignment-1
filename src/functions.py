@@ -1,5 +1,8 @@
 import pandas as pd
+<<<<<<< HEAD
 import numpy as np
+=======
+>>>>>>> 8d763eeca436d545a360443d120313be13e5aeb0
 from sklearn.model_selection import train_test_split
 
 def load_dataset(filepath):
@@ -29,10 +32,18 @@ def create_stratified_split(df, target_col, test_size=0.2, random_state=42, n_qu
     Returns:
     tuple: (train_df, val_df) containing the split dataframes.
     """
+<<<<<<< HEAD
  
     stratify_bins = pd.qcut(df[target_col], q=n_quantiles, labels=False, duplicates='drop')
     
     # Perform the split
+=======
+    # duplicates='drop' handles cases where there might be many identical values 
+    # clustering at a specific quantile boundary.
+    stratify_bins = pd.qcut(df[target_col], q=n_quantiles, labels=False, duplicates='drop')
+    
+    # Perform the split using the bins for stratification
+>>>>>>> 8d763eeca436d545a360443d120313be13e5aeb0
     train_df, val_df = train_test_split(
         df, 
         test_size=test_size, 
@@ -60,6 +71,11 @@ def build_cpg_preprocessing_pipeline():
     
     return pipeline
 
+<<<<<<< HEAD
+=======
+import pandas as pd
+
+>>>>>>> 8d763eeca436d545a360443d120313be13e5aeb0
 def separate_features_target(df, target_col='age', meta_cols=['sample_id', 'ethnicity', 'sex']):
     """
     Separates the dataframe into feature matrix X (CpG sites), 
@@ -77,6 +93,7 @@ def separate_features_target(df, target_col='age', meta_cols=['sample_id', 'ethn
     # Extract the target variable
     y = df[target_col].copy()
     
+<<<<<<< HEAD
     # Extract the metadata
     metadata = df[meta_cols].copy()
     
@@ -183,3 +200,14 @@ def stability_selection(X_scaled, y, feature_names, n_iterations=50, subsample_f
     stable_feature_names = [feature_names[idx] for idx in stable_indices]
     
     return stable_feature_names, selection_counts
+=======
+    # 2. Extract the metadata
+    # We keep this just in case we want to analyze errors across different sexes/ethnicities later
+    metadata = df[meta_cols].copy()
+    
+    # 3. Extract the features (CpG sites) by dropping the target and metadata columns
+    cols_to_drop = [target_col] + meta_cols
+    X = df.drop(columns=cols_to_drop)
+    
+    return X, y, metadata
+>>>>>>> 8d763eeca436d545a360443d120313be13e5aeb0
