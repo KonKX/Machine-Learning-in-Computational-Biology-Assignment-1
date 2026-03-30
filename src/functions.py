@@ -94,7 +94,7 @@ def bootstrap_evaluation(y_true, y_pred, n_bootstraps=1000, seed=42):
     """
     Evaluates predictions using bootstrap resampling to generate 95% Confidence Intervals.
     """
-    # Set the seed for exact reproducibility of the random samples
+    # Set the seed
     np.random.seed(seed)
     
     # Convert inputs to numpy arrays for easier indexing
@@ -131,6 +131,40 @@ def bootstrap_evaluation(y_true, y_pred, n_bootstraps=1000, seed=42):
         lower_ci = np.percentile(values, 2.5)
         upper_ci = np.percentile(values, 97.5)
         results[name] = (mean_val, lower_ci, upper_ci)
+        
+    return results
+
+# This function is an enhanced version of the previous bootstrap_evaluation, which now also returns the standard deviation of the metrics across the bootstrap samples.
+def bootstrap_evaluation_final(y_true, y_pred, n_bootstraps=1000, seed=42):
+    np.random.seed(seed)
+    y_true_np = np.array(y_true)
+    y_pred_np = np.array(y_pred)
+    n_samples = len(y_true_np)
+    
+    rmses, maes, r2s, pearsons = [], [], [], []
+    
+    for _ in range(n_bootstraps):
+        indices = np.random.choice(np.arange(n_samples), size=n_samples, replace=True)
+        y_true_boot, y_pred_boot = y_true_np[indices], y_pred_np[indices]
+        
+        rmses.append(np.sqrt(mean_squared_error(y_true_boot, y_pred_boot)))
+        maes.append(mean_absolute_error(y_true_boot, y_pred_boot))
+        r2s.append(r2_score(y_true_boot, y_pred_boot))
+        
+        r, _ = pearsonr(y_true_boot, y_pred_boot)
+        pearsons.append(r)
+        
+    results = {}
+    metric_names = ['RMSE', 'MAE', 'R²', 'Pearson r']
+    metric_lists = [rmses, maes, r2s, pearsons]
+    
+    for name, values in zip(metric_names, metric_lists):
+        results[name] = {
+            'mean': np.mean(values),
+            'std': np.std(values),
+            'lower_ci': np.percentile(values, 2.5),
+            'upper_ci': np.percentile(values, 97.5)
+        }
         
     return results
 
